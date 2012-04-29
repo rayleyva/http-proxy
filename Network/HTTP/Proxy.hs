@@ -344,27 +344,6 @@ serveConnection settings th tm onException port conn remoteHost' mgr =
                 failRequest th conn req "Unknown request" ("Unknown request '" `mappend` rawPathInfo req `mappend` "'.")
                                 >>= \keepAlive -> when keepAlive $ serveConnection'' fromClient
 
-{-
-        -- Pretty sure I need this but it doesn't fix quite yet.
-        (env, ibs) <- parseRequest conn port remoteHost' fromClient
-        case settingsIntercept settings env of
-            Nothing -> do
-                -- Let the application run for as long as it wants
-                liftIO $ T.pause th
-                res <- app env
-
-                -- flush the rest of the request body
-                ibsIsolate ibs C.$$ CL.sinkNull
-                fromClient' <- liftIO $ ibsDone ibs
-
-                liftIO $ T.resume th
-                keepAlive <- sendResponse th env conn res
-                when keepAlive $ serveConnection'' fromClient'
-            Just intercept -> do
-                liftIO $ T.pause th
-                intercept fromClient conn
--}
-
 
 parseRequest :: Connection -> Port -> SockAddr
              -> C.Source (ResourceT IO) S.ByteString
